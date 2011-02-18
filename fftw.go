@@ -8,19 +8,19 @@ import (
   "unsafe"
 )
 
-type plan struct {
+type Plan struct {
   fftw_p C.fftw_plan
 }
-func destroyPlan(p *plan) {
+func destroyPlan(p *Plan) {
   C.fftw_destroy_plan(p.fftw_p)
 }
-func newPlan(fftw_p C.fftw_plan) *plan {
-  np := new(plan)
+func newPlan(fftw_p C.fftw_plan) *Plan {
+  np := new(Plan)
   np.fftw_p = fftw_p
   runtime.SetFinalizer(np, destroyPlan)
   return np
 }
-func (p *plan) Execute() {
+func (p *Plan) Execute() {
   C.fftw_execute(p.fftw_p)
 }
 
@@ -46,7 +46,7 @@ func Alloc2d(n0,n1 int) [][]complex128 {
 }
 
 
-func PlanDft1d(in,out []complex128, dir Direction, flag Flag) *plan {
+func PlanDft1d(in,out []complex128, dir Direction, flag Flag) *Plan {
   // TODO: check that len(in) == len(out)
   fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0]))
   fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0]))
@@ -54,7 +54,7 @@ func PlanDft1d(in,out []complex128, dir Direction, flag Flag) *plan {
   return newPlan(p)
 }
 
-func PlanDft2d(in,out [][]complex128, dir Direction, flag Flag) *plan {
+func PlanDft2d(in,out [][]complex128, dir Direction, flag Flag) *Plan {
   // TODO: check that in and out have the same dimensions
   fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0][0]))
   fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0][0]))
