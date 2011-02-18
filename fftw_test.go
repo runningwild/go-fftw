@@ -32,19 +32,19 @@ func Alloc2dSpec(c gospec.Context) {
 func FFT1dSpec(c gospec.Context) {
   signal := fftw.Alloc1d(16)
   for i := range signal {
-    signal[i] = cmplx(float64(i), float64(-i))
+    signal[i] = complex(float64(i), float64(-i))
   }
   forward := fftw.PlanDft1d(signal, signal, fftw.Forward, fftw.Estimate)
   c.Specify("Creating a plan doesn't overwrite an existing array if fftw.Estimate is used.", func() {
     for i := range signal {
-      c.Expect(signal[i], Equals, cmplx(float64(i), float64(-i)))
+      c.Expect(signal[i], Equals, complex(float64(i), float64(-i)))
     }
   })
 
   // A simple real cosine should result in transform with two spikes, one at S[1] and one at S[-1]
   // The spikes should be real and have amplitude equal to len(S) (because fftw doesn't normalize)
   for i := range signal {
-    signal[i] = cmplx(math.Cos(float64(i) / float64(len(signal)) * math.Pi * 2), 0)
+    signal[i] = complex(math.Cos(float64(i) / float64(len(signal)) * math.Pi * 2), 0)
   }
   forward.Execute()
   c.Specify("Forward 1d FFT works properly.", func() {
