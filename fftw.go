@@ -33,6 +33,8 @@ type Flag uint
 var Estimate Flag = C.FFTW_ESTIMATE
 var Measure  Flag = C.FFTW_MEASURE
 
+// TODO: Find out how to allocate memory with fftw and then make a go array out of it
+//       so that memory is appropriately alignment for SIMDs.
 func Alloc1d(n int) []complex128 {
   return make([]complex128, n)
 }
@@ -78,6 +80,31 @@ func PlanDft3d(in,out [][][]complex128, dir Direction, flag Flag) *Plan {
   fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0][0][0]))
   fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0][0][0]))
   p := C.fftw_plan_dft_3d((C.int)(len(in)), (C.int)(len(in[0])), (C.int)(len(in[0][0])), fftw_in, fftw_out, C.int(dir), C.uint(flag))
+  return newPlan(p)
+}
+
+// TODO: Once we can create go arrays out of pre-existing data we can do these real-to-complex and complex-to-real
+//       transforms in-place.
+// The real-to-complex and complex-to-real transforms save roughly a factor of two in time and space, with
+// the following caveats:
+// 1. The real array is of size N, the complex array is of size N/2+1.
+// 2. The output array contains only the non-redundant output, the complete output is symmetric and the last half
+//    is the complex conjugate of the first half.
+// 3. Doing a complex-to-real transform destroys the input signal.
+func PlanDftR2C1d(in []float64, out []complex128, flag Flag) *Plan {
+  // TODO: check that in and out have the appropriate dimensions
+  fftw_in := (*C.double)((unsafe.Pointer)(&in[0]))
+  fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0]))
+  p := C.fftw_plan_dft_r2c_1d((C.int)(len(in)), fftw_in, fftw_out, C.uint(flag))
+  return newPlan(p)
+}
+
+// Note: Executing this plan will destroy the data contained by in
+func PlanDftC2R1d(in []complex128, out []float64, flag Flag) *Plan {
+  // TODO: check that in and out have the appropriate dimensions
+  fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0]))
+  fftw_out := (*C.double)((unsafe.Pointer)(&out[0]))
+  p := C.fftw_plan_dft_c2r_1d((C.int)(len(out)), fftw_in, fftw_out, C.uint(flag))
   return newPlan(p)
 }
 

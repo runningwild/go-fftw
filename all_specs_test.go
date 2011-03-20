@@ -24,4 +24,10 @@ func TestAllSpecs(t *testing.T) {
   r = gospec.NewRunner()
   r.AddSpec(FFT3dSpec)
   gospec.MainGoTest(r, t)
+  r = gospec.NewRunner()
+  r.AddSpec(FFTR2CSpec)
+  gospec.MainGoTest(r, t)
+  r = gospec.NewRunner()
+  r.AddSpec(FFTC2RSpec)
+  gospec.MainGoTest(r, t)
 }
