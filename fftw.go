@@ -4,6 +4,7 @@ package fftw
 import "C"
 
 import (
+  "reflect"
   "runtime"
   "unsafe"
 )
@@ -33,13 +34,15 @@ type Flag uint
 var Estimate Flag = C.FFTW_ESTIMATE
 var Measure  Flag = C.FFTW_MEASURE
 
-// TODO: Find out how to allocate memory with fftw and then make a go array out of it
-//       so that memory is appropriately alignment for SIMDs.
 func Alloc1d(n int) []complex128 {
-  return make([]complex128, n)
+  buffer := (unsafe.Pointer)(C.fftw_malloc((C.size_t)(16 * n)))
+  slice := (*[1<<30]complex128)(buffer)[:n]
+  header := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+  header.Cap = n
+  return slice
 }
 func Alloc2d(n0,n1 int) [][]complex128 {
-  a := make([]complex128, n0*n1)
+  a := Alloc1d(n0 * n1)
   r := make([][]complex128, n0)
   for i := range r {
     r[i] = a[i*n1 : (i+1)*n1]
@@ -47,7 +50,7 @@ func Alloc2d(n0,n1 int) [][]complex128 {
   return r
 }
 func Alloc3d(n0,n1,n2 int) [][][]complex128 {
-  a := make([]complex128, n0*n1*n2)
+  a := Alloc1d(n0 * n1 * n2)
   r := make([][][]complex128, n0)
   for i := range r {
     b := make([][]complex128, n1)

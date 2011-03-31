@@ -8,6 +8,7 @@ import (
 
 func TestAllSpecs(t *testing.T) {
   r := gospec.NewRunner()
+  r.AddSpec(GCSpec)
   r.AddSpec(Alloc1dSpec)
   r.AddSpec(Alloc2dSpec)
   r.AddSpec(Alloc3dSpec)

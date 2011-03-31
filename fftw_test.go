@@ -19,6 +19,16 @@ func Alloc1dSpec(c gospec.Context) {
   })
 }
 
+// Make sure that the memory allocated by fftw is getting properly GCed
+func GCSpec(c gospec.Context) {
+  tot := 0.0
+  for i := 0; i < 1000; i++ {
+    d := fftw.Alloc1d(100000000)       // Allocate a bunch of memory
+    d[10000] = complex(float64(i), 0)  // Do something stupid with it so
+    tot += real(d[10000])              // hopefully it doesn't get optimized out
+  }
+}
+
 func Alloc2dSpec(c gospec.Context) {
   d100x50 := fftw.Alloc2d(100, 50)
   c.Specify("Allocates the appropriate memory for 2d arrays.", func() {
