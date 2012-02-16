@@ -10,30 +10,24 @@ These bindings are incomplete, but should include enough functionality that you 
 Usage:
 Here is an example of doing a simple DFT with these bindings
 
-  data := fftw.Alloc1d(64)  // Similar to calling make([]complex128, 64)
-  forward  := fftw.PlanDft1d(data, data, fftw.Forward, fftw.Estimate)
-  backward := fftw.PlanDft1d(data, data, fftw.Backward, fftw.Estimate)
-  // ... fill in data with something interesting
-  forward.Execute()  // Transforms data, in place, to frequency domain
-  // ... do something interesting with data
-  backward.Execute()  // Returns data, in place, to time domain
+    data := fftw.Alloc1d(64)  // Similar to calling make([]complex128, 64)
+    forward  := fftw.PlanDft1d(data, data, fftw.Forward, fftw.Estimate)
+    backward := fftw.PlanDft1d(data, data, fftw.Backward, fftw.Estimate)
+    // ... fill in data with something interesting
+    forward.Execute()  // Transforms data, in place, to frequency domain
+    // ... do something interesting with data
+    backward.Execute()  // Returns data, in place, to time domain
 
 Calling fftw.Alloc1d(64) allows FFTW to allocate the memory so that it is properly aligned to take advantage of SIMDs.  You could just use make([]complex128, size) if you want.
 
 Installation:
 When installing fftw you must compile it as a shared library:
 
-  ./configure --enable-shared
-  make
-  make install
+    ./configure --enable-shared
+    make
+    make install
 
 Once installed properly, these bindings can be installed like so:
 
-  make
-  make install
-
-Tests:
-You must install gospec to run the tests: https://github.com/orfjackal/gospec.git
-Once gospec is installed you can run the tests like so:
-  gotest all_specs_test.go fftw_test.go
+    go get github.com/runningwild/go-fftw
 

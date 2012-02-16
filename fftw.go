@@ -1,5 +1,6 @@
 package fftw
 
+// #cgo LDFLAGS: -lfftw3 -lm
 // #include <fftw3.h>
 import "C"
 

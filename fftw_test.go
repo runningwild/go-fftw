@@ -1,9 +1,9 @@
 package fftw_test
 
 import (
-  "fftw"
-  "gospec"
-  . "gospec"
+  "github.com/runningwild/fftw"
+  "github.com/orfjackal/gospec/src/gospec"
+  . "github.com/orfjackal/gospec/src/gospec"
   "math"
 )
 
