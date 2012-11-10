@@ -37,9 +37,9 @@ var Measure  Flag = C.FFTW_MEASURE
 
 func Alloc1d(n int) []complex128 {
   buffer := (unsafe.Pointer)(C.fftw_malloc((C.size_t)(16 * n)))
-  slice := (*[1<<30]complex128)(buffer)[:n]
+  var slice []complex128
   header := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
-  header.Cap = n
+  *header = reflect.SliceHeader{uintptr(buffer), n, n}
   return slice
 }
 func Alloc2d(n0,n1 int) [][]complex128 {
