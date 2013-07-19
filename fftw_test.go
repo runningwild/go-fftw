@@ -82,10 +82,26 @@ func Alloc3dSpec(c gospec.Context) {
 	})
 }
 
+func peakVerifier(s []complex128, c gospec.Context) {
+	c.Expect(real(s[0]), gospec.IsWithin(1e-9), 0.0)
+	c.Expect(imag(s[0]), gospec.IsWithin(1e-9), 0.0)
+	c.Expect(real(s[1]), gospec.IsWithin(1e-9), float64(len(s))/2)
+	c.Expect(imag(s[1]), gospec.IsWithin(1e-9), 0.0)
+	for i := 2; i < len(s)-1; i++ {
+		c.Expect(real(s[i]), gospec.IsWithin(1e-9), 0.0)
+		c.Expect(imag(s[i]), gospec.IsWithin(1e-9), 0.0)
+	}
+	c.Expect(real(s[len(s)-1]), gospec.IsWithin(1e-9), float64(len(s))/2)
+	c.Expect(imag(s[len(s)-1]), gospec.IsWithin(1e-9), 0.0)
+}
+
 func FFT1dSpec(c gospec.Context) {
 	signal := Alloc1d(16)
+	new_in := Alloc1d(16)
+	new_out := Alloc1d(16)
 	for i := range signal {
 		signal[i] = complex(float64(i), float64(-i))
+		new_in[i] = signal[i]
 	}
 	forward := PlanDft1d(signal, signal, Forward, Estimate)
 	c.Specify("Creating a plan doesn't overwrite an existing array if fftw.Estimate is used.", func() {
@@ -98,19 +114,17 @@ func FFT1dSpec(c gospec.Context) {
 	// The spikes should be real and have amplitude equal to len(S)/2 (because fftw doesn't normalize)
 	for i := range signal {
 		signal[i] = complex(math.Cos(float64(i)/float64(len(signal))*math.Pi*2), 0)
+		new_in[i] = signal[i]
 	}
 	forward.Execute()
 	c.Specify("Forward 1d FFT works properly.", func() {
-		c.Expect(real(signal[0]), gospec.IsWithin(1e-9), 0.0)
-		c.Expect(imag(signal[0]), gospec.IsWithin(1e-9), 0.0)
-		c.Expect(real(signal[1]), gospec.IsWithin(1e-9), float64(len(signal))/2)
-		c.Expect(imag(signal[1]), gospec.IsWithin(1e-9), 0.0)
-		for i := 2; i < len(signal)-1; i++ {
-			c.Expect(real(signal[i]), gospec.IsWithin(1e-9), 0.0)
-			c.Expect(imag(signal[i]), gospec.IsWithin(1e-9), 0.0)
-		}
-		c.Expect(real(signal[len(signal)-1]), gospec.IsWithin(1e-9), float64(len(signal))/2)
-		c.Expect(imag(signal[len(signal)-1]), gospec.IsWithin(1e-9), 0.0)
+		peakVerifier(signal, c)
+	})
+
+	// This should also be the case when using new arrays...
+	forward.ExecuteNewArray(new_in, new_out)
+	c.Specify("New array Forward 1d FFT works properly", func() {
+		peakVerifier(new_out, c)
 	})
 }
 

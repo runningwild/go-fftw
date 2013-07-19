@@ -29,6 +29,12 @@ func (p *Plan) Execute() {
 	C.fftw_execute(p.fftw_p)
 }
 
+func (p *Plan) ExecuteNewArray(in, out []complex128) {
+	fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0]))
+	fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0]))
+	C.fftw_execute_dft(p.fftw_p, fftw_in, fftw_out)
+}
+
 type Direction int
 
 var Forward Direction = C.FFTW_FORWARD
@@ -71,6 +77,7 @@ func Alloc3d(n0, n1, n2 int) [][][]complex128 {
 
 func PlanDft1d(in, out []complex128, dir Direction, flag Flag) *Plan {
 	// TODO: check that len(in) == len(out)
+
 	fftw_in := (*C.fftw_complex)((unsafe.Pointer)(&in[0]))
 	fftw_out := (*C.fftw_complex)((unsafe.Pointer)(&out[0]))
 	p := C.fftw_plan_dft_1d((C.int)(len(in)), fftw_in, fftw_out, C.int(dir), C.uint(flag))
