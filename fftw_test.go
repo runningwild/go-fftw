@@ -101,12 +101,6 @@ func FFT1DSpec(c gospec.Context) {
 		signal.Elems[i] = complex(float64(i), float64(-i))
 		new_in.Elems[i] = signal.Elems[i]
 	}
-	forward := plan1D(signal, signal, Forward, Estimate)
-	c.Specify("Creating a plan doesn't overwrite an existing array if fftw.Estimate is used.", func() {
-		for i := range signal.Elems {
-			c.Expect(signal.Elems[i], gospec.Equals, complex(float64(i), float64(-i)))
-		}
-	})
 
 	// A simple real cosine should result in transform with two spikes, one at S[1] and one at S[-1]
 	// The spikes should be real and have amplitude equal to len(S)/2 (because fftw doesn't normalize)
@@ -114,7 +108,7 @@ func FFT1DSpec(c gospec.Context) {
 		signal.Elems[i] = complex(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2), 0)
 		new_in.Elems[i] = signal.Elems[i]
 	}
-	forward.Execute()
+	signal.FFT(Forward, Estimate)
 	c.Specify("Forward 1D FFT works properly.", func() {
 		peakVerifier(signal.Elems, c)
 	})
@@ -127,14 +121,6 @@ func FFT2DSpec(c gospec.Context) {
 			signal.Elems[i][j] = complex(float64(i+j), float64(-i-j))
 		}
 	}
-	forward := plan2D(signal, signal, Forward, Estimate)
-	c.Specify("Creating a plan doesn't overwrite an existing array if fftw.Estimate is used.", func() {
-		for i := range signal.Elems {
-			for j := range signal.Elems[i] {
-				c.Expect(signal.Elems[i][j], gospec.Equals, complex(float64(i+j), float64(-i-j)))
-			}
-		}
-	})
 
 	// As long as fx < dx/2 and fy < dy/2, where dx and dy are the lengths in each dimension,
 	// there will be 2^n spikes, where n is the number of dimensions.  Each spike will be
@@ -150,7 +136,7 @@ func FFT2DSpec(c gospec.Context) {
 			signal.Elems[i][j] = complex(cosx*cosy, 0)
 		}
 	}
-	forward.Execute()
+	signal.FFT(Forward, Estimate)
 	c.Specify("Forward 2D FFT works properly.", func() {
 		for i := range signal.Elems {
 			for j := range signal.Elems[i] {
@@ -176,16 +162,6 @@ func FFT3DSpec(c gospec.Context) {
 			}
 		}
 	}
-	forward := plan3D(signal, signal, Forward, Estimate)
-	c.Specify("Creating a plan doesn't overwrite an existing array if fftw.Estimate is used.", func() {
-		for i := range signal.Elems {
-			for j := range signal.Elems[i] {
-				for k := range signal.Elems[i][j] {
-					c.Expect(signal.Elems[i][j][k], gospec.Equals, complex(float64(i+j+k), float64(-i-j-k)))
-				}
-			}
-		}
-	})
 
 	// As long as fx < dx/2, fy < dy/2, and fz < dz/2, where dx,dy,dz  are the lengths in
 	// each dimension, there will be 2^n spikes, where n is the number of dimensions.
@@ -206,7 +182,7 @@ func FFT3DSpec(c gospec.Context) {
 			}
 		}
 	}
-	forward.Execute()
+	signal.FFT(Forward, Estimate)
 	c.Specify("Forward 3D FFT works properly.", func() {
 		for i := range signal.Elems {
 			for j := range signal.Elems[i] {
