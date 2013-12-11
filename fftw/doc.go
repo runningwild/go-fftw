@@ -12,7 +12,7 @@ Beware: Scaling is the same as in FFTW, so that computing forward and then inver
 
 Memory is allocated using fftw_malloc and automatically freed by the garbage collector using fftw_free.
 
-Use a Plan explicity to recycle memory and to do in-place transforms.
+Use a Plan explicitly to recycle memory and to do in-place transforms.
 	x := fftw.NewArray(100)
 	// ...
 	MakePlan1(x, x, fftw.Forward, fftw.Estimate).Execute()
