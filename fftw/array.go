@@ -11,88 +11,65 @@ import (
 // Contains memory allocated using fftw_malloc.
 // Finalizer invokes fftw_free.
 // Do not modify location of slice!
-type Array1D struct {
+type Array struct {
 	Elems []complex128
 }
 
-func (a *Array1D) Len() int {
+func (a *Array) Len() int {
 	return len(a.Elems)
 }
 
-func (a *Array1D) Ptr() unsafe.Pointer {
+func (a *Array) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(&a.Elems[0])
 }
 
-// In-place transform.
-func (a *Array1D) FFT(dir Direction, flag Flag) {
-	plan1D(a, a, dir, flag).Execute()
-}
-
-func NewArray1D(n int) *Array1D {
+func NewArray(n int) *Array {
 	elems := allocCmplx(n)
 	// Allocate structure with finalizer.
-	a := &Array1D{elems}
-	runtime.SetFinalizer(a, free1D)
+	a := &Array{elems}
+	runtime.SetFinalizer(a, free1)
 	return a
 }
 
-func free1D(x *Array1D) {
-	C.fftw_free(x.Ptr())
-}
-
-// 2D version of Array1D.
-type Array2D struct {
+// 2D version of Array.
+type Array2 struct {
 	Elems [][]complex128
 }
 
-func (a *Array2D) Dims() (n0, n1 int) {
+func (a *Array2) Dims() (n0, n1 int) {
 	return dims2(a.Elems)
 }
 
-func (a *Array2D) Ptr() unsafe.Pointer {
+func (a *Array2) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(&a.Elems[0][0])
 }
 
-// In-place transform.
-func (a *Array2D) FFT(dir Direction, flag Flag) {
-	plan2D(a, a, dir, flag).Execute()
-}
-
-func NewArray2D(n0, n1 int) *Array2D {
+func NewArray2(n0, n1 int) *Array2 {
 	elems := allocCmplx(n0 * n1)
 	r := make([][]complex128, n0)
 	for i := range r {
 		r[i] = elems[i*n1 : (i+1)*n1]
 	}
 	// Allocate structure with finalizer.
-	a := &Array2D{r}
-	runtime.SetFinalizer(a, free2D)
+	a := &Array2{r}
+	runtime.SetFinalizer(a, free2)
 	return a
 }
 
-func free2D(x *Array2D) {
-	C.fftw_free(x.Ptr())
-}
-
-// 3D version of Array1D.
-type Array3D struct {
+// 3D version of Array.
+type Array3 struct {
 	Elems [][][]complex128
 }
 
-func (a *Array3D) Dims() (n0, n1, n2 int) {
+func (a *Array3) Dims() (n0, n1, n2 int) {
 	return dims3(a.Elems)
 }
 
-func (a *Array3D) Ptr() unsafe.Pointer {
+func (a *Array3) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(&a.Elems[0][0][0])
 }
 
-// In-place transform.
-func (a *Array3D) FFT(dir Direction, flag Flag) {
-	plan3D(a, a, dir, flag).Execute()
-}
-
-func NewArray3D(n0, n1, n2 int) *Array3D {
+func NewArray3(n0, n1, n2 int) *Array3 {
 	elems := allocCmplx(n0 * n1 * n2)
 	r := make([][][]complex128, n0)
 	for i := range r {
@@ -103,11 +80,27 @@ func NewArray3D(n0, n1, n2 int) *Array3D {
 		r[i] = b
 	}
 	// Allocate structure with finalizer.
-	a := &Array3D{r}
-	runtime.SetFinalizer(a, free3D)
+	a := &Array3{r}
+	runtime.SetFinalizer(a, free3)
 	return a
 }
 
-func free3D(x *Array3D) {
+type array interface {
+	Ptr() unsafe.Pointer
+}
+
+func free(x array) {
 	C.fftw_free(x.Ptr())
+}
+
+func free1(x *Array) {
+	free(x)
+}
+
+func free2(x *Array2) {
+	free(x)
+}
+
+func free3(x *Array3) {
+	free(x)
 }

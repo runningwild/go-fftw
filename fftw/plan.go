@@ -7,28 +7,28 @@ import (
 	"runtime"
 )
 
-type plan struct {
+type Plan struct {
 	fftw_p C.fftw_plan
 }
 
-func destroyPlan(p *plan) {
+func destroyPlan(p *Plan) {
 	C.fftw_destroy_plan(p.fftw_p)
 }
 
-func newPlan(fftw_p C.fftw_plan) *plan {
-	np := new(plan)
+func newPlan(fftw_p C.fftw_plan) *Plan {
+	np := new(Plan)
 	np.fftw_p = fftw_p
 	runtime.SetFinalizer(np, destroyPlan)
 	return np
 }
 
-func (p *plan) Execute() {
+func (p *Plan) Execute() {
 	C.fftw_execute(p.fftw_p)
 }
 
-func plan1D(in, out *Array1D, dir Direction, flag Flag) *plan {
+func MakePlan1(in, out *Array, dir Direction, flag Flag) *Plan {
 	// TODO: check that len(in) == len(out)
-	n := len(in.Elems)
+	n := in.Len()
 	var (
 		n_    = C.int(n)
 		in_   = (*C.fftw_complex)(in.Ptr())
@@ -40,9 +40,9 @@ func plan1D(in, out *Array1D, dir Direction, flag Flag) *plan {
 	return newPlan(p)
 }
 
-func plan2D(in, out *Array2D, dir Direction, flag Flag) *plan {
+func MakePlan2(in, out *Array2, dir Direction, flag Flag) *Plan {
 	// TODO: check that in and out have the same dimensions
-	n0, n1 := dims2(in.Elems)
+	n0, n1 := in.Dims()
 	var (
 		n0_   = C.int(n0)
 		n1_   = C.int(n1)
@@ -55,9 +55,9 @@ func plan2D(in, out *Array2D, dir Direction, flag Flag) *plan {
 	return newPlan(p)
 }
 
-func plan3D(in, out *Array3D, dir Direction, flag Flag) *plan {
+func MakePlan3(in, out *Array3, dir Direction, flag Flag) *Plan {
 	// TODO: check that in and out have the same dimensions
-	n0, n1, n2 := dims3(in.Elems)
+	n0, n1, n2 := in.Dims()
 	var (
 		n0_   = C.int(n0)
 		n1_   = C.int(n1)

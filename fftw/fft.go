@@ -2,22 +2,66 @@ package fftw
 
 var DefaultFlag = Estimate
 
-func FFT1D(x *Array1D, dir Direction, flag Flag) *Array1D {
-	y := NewArray1D(x.Len())
-	plan1D(x, y, dir, flag).Execute()
-	return y
+// Computes the DFT.
+// Allocates memory in which to return the result.
+func FFT(src *Array) *Array {
+	dst := NewArray(src.Len())
+	fftTo(dst, src, Forward, DefaultFlag)
+	return dst
 }
 
-func FFT2D(x *Array2D, dir Direction, flag Flag) *Array2D {
-	n0, n1 := x.Dims()
-	y := NewArray2D(n0, n1)
-	plan2D(x, y, dir, flag).Execute()
-	return y
+// Computes the inverse DFT.
+// Allocates memory in which to return the result.
+func IFFT(src *Array) *Array {
+	dst := NewArray(src.Len())
+	fftTo(dst, src, Backward, DefaultFlag)
+	return dst
 }
 
-func FFT3D(x *Array3D, dir Direction, flag Flag) *Array3D {
-	n0, n1, n2 := x.Dims()
-	y := NewArray3D(n0, n1, n2)
-	plan3D(x, y, dir, flag).Execute()
-	return y
+func fftTo(dst, src *Array, dir Direction, flag Flag) {
+	MakePlan1(src, dst, dir, flag).Execute()
+}
+
+// 2D version of FFT.
+func FFT2(src *Array2) *Array2 {
+	return fft2(src, Forward)
+}
+
+// 2D version of IFFT.
+func IFFT2(src *Array2) *Array2 {
+	return fft2(src, Backward)
+}
+
+// Allocates memory.
+func fft2(src *Array2, dir Direction) *Array2 {
+	n0, n1 := src.Dims()
+	dst := NewArray2(n0, n1)
+	fft2To(dst, src, Forward, DefaultFlag)
+	return dst
+}
+
+func fft2To(dst, src *Array2, dir Direction, flag Flag) {
+	MakePlan2(src, dst, dir, flag).Execute()
+}
+
+// 3D version of FFT.
+func FFT3(src *Array3) *Array3 {
+	return fft3(src, Forward)
+}
+
+// 3D version of IFFT.
+func IFFT3(src *Array3) *Array3 {
+	return fft3(src, Backward)
+}
+
+// Allocates memory.
+func fft3(src *Array3, dir Direction) *Array3 {
+	n0, n1, n2 := src.Dims()
+	dst := NewArray3(n0, n1, n2)
+	fft3To(dst, src, dir, DefaultFlag)
+	return dst
+}
+
+func fft3To(dst, src *Array3, dir Direction, flag Flag) {
+	MakePlan3(src, dst, dir, flag).Execute()
 }

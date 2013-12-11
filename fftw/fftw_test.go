@@ -5,10 +5,10 @@ import (
 	"math"
 )
 
-func NewArray1DSpec(c gospec.Context) {
-	d10 := NewArray1D(10)
-	d100 := NewArray1D(100)
-	d1000 := NewArray1D(1000)
+func NewArraySpec(c gospec.Context) {
+	d10 := NewArray(10)
+	d100 := NewArray(100)
+	d1000 := NewArray(1000)
 	c.Specify("Allocates the appropriate memory for 1D arrays.", func() {
 		c.Expect(len(d10.Elems), gospec.Equals, 10)
 		c.Expect(len(d100.Elems), gospec.Equals, 100)
@@ -20,14 +20,14 @@ func NewArray1DSpec(c gospec.Context) {
 func GCSpec(c gospec.Context) {
 	tot := 0.0
 	for i := 0; i < 1000; i++ {
-		d := NewArray1D(100000000)              // Allocate a bunch of memory
+		d := NewArray(100000000)              // Allocate a bunch of memory
 		d.Elems[10000] = complex(float64(i), 0) // Do something stupid with it so
 		tot += real(d.Elems[10000])             // hopefully it doesn't get optimized out
 	}
 }
 
-func NewArray2DSpec(c gospec.Context) {
-	d100x50 := NewArray2D(100, 50)
+func NewArray2Spec(c gospec.Context) {
+	d100x50 := NewArray2(100, 50)
 	c.Specify("Allocates the appropriate memory for 2D arrays.", func() {
 		c.Expect(len(d100x50.Elems), gospec.Equals, 100)
 		for _, v := range d100x50.Elems {
@@ -50,8 +50,8 @@ func NewArray2DSpec(c gospec.Context) {
 	})
 }
 
-func NewArray3DSpec(c gospec.Context) {
-	d100x20x10 := NewArray3D(100, 20, 10)
+func NewArray3Spec(c gospec.Context) {
+	d100x20x10 := NewArray3(100, 20, 10)
 	c.Specify("Allocates the appropriate memory for 3D arrays.", func() {
 		c.Expect(len(d100x20x10.Elems), gospec.Equals, 100)
 		for _, v := range d100x20x10.Elems {
@@ -94,9 +94,9 @@ func peakVerifier(s []complex128, c gospec.Context) {
 	c.Expect(imag(s[len(s)-1]), gospec.IsWithin(1e-9), 0.0)
 }
 
-func FFT1DSpec(c gospec.Context) {
-	signal := NewArray1D(16)
-	new_in := NewArray1D(16)
+func FFTSpec(c gospec.Context) {
+	signal := NewArray(16)
+	new_in := NewArray(16)
 	for i := range signal.Elems {
 		signal.Elems[i] = complex(float64(i), float64(-i))
 		new_in.Elems[i] = signal.Elems[i]
@@ -108,14 +108,14 @@ func FFT1DSpec(c gospec.Context) {
 		signal.Elems[i] = complex(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2), 0)
 		new_in.Elems[i] = signal.Elems[i]
 	}
-	signal.FFT(Forward, Estimate)
+	MakePlan1(signal, signal, Forward, Estimate).Execute()
 	c.Specify("Forward 1D FFT works properly.", func() {
 		peakVerifier(signal.Elems, c)
 	})
 }
 
-func FFT2DSpec(c gospec.Context) {
-	signal := NewArray2D(64, 8)
+func FFT2Spec(c gospec.Context) {
+	signal := NewArray2(64, 8)
 	for i := range signal.Elems {
 		for j := range signal.Elems[i] {
 			signal.Elems[i][j] = complex(float64(i+j), float64(-i-j))
@@ -136,7 +136,7 @@ func FFT2DSpec(c gospec.Context) {
 			signal.Elems[i][j] = complex(cosx*cosy, 0)
 		}
 	}
-	signal.FFT(Forward, Estimate)
+	MakePlan2(signal, signal, Forward, Estimate).Execute()
 	c.Specify("Forward 2D FFT works properly.", func() {
 		for i := range signal.Elems {
 			for j := range signal.Elems[i] {
@@ -153,8 +153,8 @@ func FFT2DSpec(c gospec.Context) {
 	})
 }
 
-func FFT3DSpec(c gospec.Context) {
-	signal := NewArray3D(32, 16, 8)
+func FFT3Spec(c gospec.Context) {
+	signal := NewArray3(32, 16, 8)
 	for i := range signal.Elems {
 		for j := range signal.Elems[i] {
 			for k := range signal.Elems[i][j] {
@@ -182,7 +182,7 @@ func FFT3DSpec(c gospec.Context) {
 			}
 		}
 	}
-	signal.FFT(Forward, Estimate)
+	MakePlan3(signal, signal, Forward, Estimate).Execute()
 	c.Specify("Forward 3D FFT works properly.", func() {
 		for i := range signal.Elems {
 			for j := range signal.Elems[i] {
