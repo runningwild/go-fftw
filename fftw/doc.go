@@ -16,5 +16,15 @@ Use a Plan explicitly to recycle memory and to do in-place transforms.
 	x := fftw.NewArray(100)
 	// ...
 	fftw.MakePlan1(x, x, fftw.Forward, fftw.Estimate).Execute()
+
+It's possible to use FFTW with memory not allocated by fftw.NewArrayX().
+	x := make([]complex128, 100)
+	// ...
+
+	xhat := fftw.FFT(&fftw.Array{x})
+
+	// or in-place
+	arr := &fftw.Array{x}
+	fftw.MakePlan1(arr, arr, fftw.Forward, fftw.Estimate).Execute()
 */
 package fftw

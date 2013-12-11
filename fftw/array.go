@@ -33,54 +33,68 @@ func NewArray(n int) *Array {
 
 // 2D version of Array.
 type Array2 struct {
-	Elems [][]complex128
+	N     [2]int
+	Elems []complex128
 }
 
 func (a *Array2) Dims() (n0, n1 int) {
-	return dims2(a.Elems)
+	return a.N[0], a.N[1]
+}
+
+func (a *Array2) At(i0, i1 int) complex128 {
+	return a.Elems[a.index(i0, i1)]
+}
+
+func (a *Array2) Set(i0, i1 int, x complex128) {
+	a.Elems[a.index(i0, i1)] = x
+}
+
+func (a *Array2) index(i0, i1 int) int {
+	return i1 + a.N[1]*i0
 }
 
 func (a *Array2) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(&a.Elems[0][0])
+	return unsafe.Pointer(&a.Elems[0])
 }
 
 func NewArray2(n0, n1 int) *Array2 {
 	elems := allocCmplx(n0 * n1)
-	r := make([][]complex128, n0)
-	for i := range r {
-		r[i] = elems[i*n1 : (i+1)*n1]
-	}
 	// Allocate structure with finalizer.
-	a := &Array2{r}
+	a := &Array2{[...]int{n0, n1}, elems}
 	runtime.SetFinalizer(a, free2)
 	return a
 }
 
 // 3D version of Array.
 type Array3 struct {
-	Elems [][][]complex128
+	N     [3]int
+	Elems []complex128
 }
 
 func (a *Array3) Dims() (n0, n1, n2 int) {
-	return dims3(a.Elems)
+	return a.N[0], a.N[1], a.N[2]
 }
 
 func (a *Array3) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(&a.Elems[0][0][0])
+	return unsafe.Pointer(&a.Elems[0])
+}
+
+func (a *Array3) At(i0, i1, i2 int) complex128 {
+	return a.Elems[a.index(i0, i1, i2)]
+}
+
+func (a *Array3) Set(i0, i1, i2 int, x complex128) {
+	a.Elems[a.index(i0, i1, i2)] = x
+}
+
+func (a *Array3) index(i0, i1, i2 int) int {
+	return i2 + a.N[2]*(i1+i0*a.N[1])
 }
 
 func NewArray3(n0, n1, n2 int) *Array3 {
 	elems := allocCmplx(n0 * n1 * n2)
-	r := make([][][]complex128, n0)
-	for i := range r {
-		b := make([][]complex128, n1)
-		for j := range b {
-			b[j] = elems[i*(n1*n2)+j*n2 : i*(n1*n2)+(j+1)*n2]
-		}
-		r[i] = b
-	}
 	// Allocate structure with finalizer.
-	a := &Array3{r}
+	a := &Array3{[...]int{n0, n1, n2}, elems}
 	runtime.SetFinalizer(a, free3)
 	return a
 }
