@@ -8,9 +8,7 @@ import (
 	"unsafe"
 )
 
-// Contains memory allocated using fftw_malloc.
-// Finalizer invokes fftw_free.
-// Do not modify location of slice!
+// Data for a 1D signal.
 type Array struct {
 	Elems []complex128
 }
@@ -23,6 +21,10 @@ func (a *Array) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(&a.Elems[0])
 }
 
+// Allocates memory using fftw_malloc.
+// Associates with the struct a finalizer which invokes fftw_free.
+// Therefore it is important not to modify the slice header or
+// use the contents of the slice without having a pointer to the array.
 func NewArray(n int) *Array {
 	elems := allocCmplx(n)
 	// Allocate structure with finalizer.
