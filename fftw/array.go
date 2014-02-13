@@ -17,6 +17,14 @@ func (a *Array) Len() int {
 	return len(a.Elems)
 }
 
+func (a *Array) At(i int) complex128 {
+	return a.Elems[i]
+}
+
+func (a *Array) Set(i int, x complex128) {
+	a.Elems[i] = x
+}
+
 func (a *Array) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(&a.Elems[0])
 }
@@ -101,22 +109,14 @@ func NewArray3(n0, n1, n2 int) *Array3 {
 	return a
 }
 
-type array interface {
-	Ptr() unsafe.Pointer
-}
-
-func free(x array) {
+func free1(x *Array) {
 	C.fftw_free(x.Ptr())
 }
 
-func free1(x *Array) {
-	free(x)
-}
-
 func free2(x *Array2) {
-	free(x)
+	C.fftw_free(x.Ptr())
 }
 
 func free3(x *Array3) {
-	free(x)
+	C.fftw_free(x.Ptr())
 }

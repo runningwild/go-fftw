@@ -20,7 +20,7 @@ func NewArraySpec(c gospec.Context) {
 func GCSpec(c gospec.Context) {
 	tot := 0.0
 	for i := 0; i < 1000; i++ {
-		d := NewArray(100000000)              // Allocate a bunch of memory
+		d := NewArray(100000000)                // Allocate a bunch of memory
 		d.Elems[10000] = complex(float64(i), 0) // Do something stupid with it so
 		tot += real(d.Elems[10000])             // hopefully it doesn't get optimized out
 	}

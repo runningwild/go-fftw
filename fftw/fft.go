@@ -36,7 +36,7 @@ func IFFT2(src *Array2) *Array2 {
 func fft2(src *Array2, dir Direction) *Array2 {
 	n0, n1 := src.Dims()
 	dst := NewArray2(n0, n1)
-	fft2To(dst, src, Forward, DefaultFlag)
+	fft2To(dst, src, dir, DefaultFlag)
 	return dst
 }
 
