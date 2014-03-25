@@ -104,7 +104,7 @@ func FFTSpec(c gospec.Context) {
 		signal.Elems[i] = complex(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2), 0)
 		new_in.Elems[i] = signal.Elems[i]
 	}
-	MakePlan1(signal, signal, Forward, Estimate).Execute()
+	NewPlan(signal, signal, Forward, Estimate).Execute().Destroy()
 	c.Specify("Forward 1D FFT works properly.", func() {
 		peakVerifier(signal.Elems, c)
 	})
@@ -133,7 +133,7 @@ func FFT2Spec(c gospec.Context) {
 			signal.Set(i, j, complex(cosx*cosy, 0))
 		}
 	}
-	MakePlan2(signal, signal, Forward, Estimate).Execute()
+	NewPlan2(signal, signal, Forward, Estimate).Execute().Destroy()
 	c.Specify("Forward 2D FFT works properly.", func() {
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
@@ -181,7 +181,7 @@ func FFT3Spec(c gospec.Context) {
 			}
 		}
 	}
-	MakePlan3(signal, signal, Forward, Estimate).Execute()
+	NewPlan3(signal, signal, Forward, Estimate).Execute().Destroy()
 	c.Specify("Forward 3D FFT works properly.", func() {
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {

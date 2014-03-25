@@ -3,11 +3,6 @@ package fftw
 // #include <fftw3.h>
 import "C"
 
-import (
-	"runtime"
-	"unsafe"
-)
-
 // Data for a 1D signal.
 type Array struct {
 	Elems []complex128
@@ -25,20 +20,14 @@ func (a *Array) Set(i int, x complex128) {
 	a.Elems[i] = x
 }
 
-func (a *Array) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(&a.Elems[0])
+func (a *Array) ptr() *complex128 {
+	return &a.Elems[0]
 }
 
 // Allocates memory using fftw_malloc.
-// Associates with the struct a finalizer which invokes fftw_free.
-// Therefore it is important not to modify the slice header or
-// use the contents of the slice without having a pointer to the array.
 func NewArray(n int) *Array {
-	elems := allocCmplx(n)
-	// Allocate structure with finalizer.
-	a := &Array{elems}
-	runtime.SetFinalizer(a, free1)
-	return a
+	elems := make([]complex128, n)
+	return &Array{elems}
 }
 
 // 2D version of Array.
@@ -63,16 +52,13 @@ func (a *Array2) index(i0, i1 int) int {
 	return i1 + a.N[1]*i0
 }
 
-func (a *Array2) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(&a.Elems[0])
+func (a *Array2) ptr() *complex128 {
+	return &a.Elems[0]
 }
 
 func NewArray2(n0, n1 int) *Array2 {
-	elems := allocCmplx(n0 * n1)
-	// Allocate structure with finalizer.
-	a := &Array2{[...]int{n0, n1}, elems}
-	runtime.SetFinalizer(a, free2)
-	return a
+	elems := make([]complex128, n0*n1)
+	return &Array2{[...]int{n0, n1}, elems}
 }
 
 // 3D version of Array.
@@ -85,8 +71,8 @@ func (a *Array3) Dims() (n0, n1, n2 int) {
 	return a.N[0], a.N[1], a.N[2]
 }
 
-func (a *Array3) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(&a.Elems[0])
+func (a *Array3) ptr() *complex128 {
+	return &a.Elems[0]
 }
 
 func (a *Array3) At(i0, i1, i2 int) complex128 {
@@ -102,21 +88,6 @@ func (a *Array3) index(i0, i1, i2 int) int {
 }
 
 func NewArray3(n0, n1, n2 int) *Array3 {
-	elems := allocCmplx(n0 * n1 * n2)
-	// Allocate structure with finalizer.
-	a := &Array3{[...]int{n0, n1, n2}, elems}
-	runtime.SetFinalizer(a, free3)
-	return a
-}
-
-func free1(x *Array) {
-	C.fftw_free(x.Ptr())
-}
-
-func free2(x *Array2) {
-	C.fftw_free(x.Ptr())
-}
-
-func free3(x *Array3) {
-	C.fftw_free(x.Ptr())
+	elems := make([]complex128, n0*n1*n2)
+	return &Array3{[...]int{n0, n1, n2}, elems}
 }

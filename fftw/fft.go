@@ -19,7 +19,7 @@ func IFFT(src *Array) *Array {
 }
 
 func fftTo(dst, src *Array, dir Direction, flag Flag) {
-	MakePlan1(src, dst, dir, flag).Execute()
+	NewPlan(src, dst, dir, flag).Execute().Destroy()
 }
 
 // 2D version of FFT.
@@ -41,7 +41,7 @@ func fft2(src *Array2, dir Direction) *Array2 {
 }
 
 func fft2To(dst, src *Array2, dir Direction, flag Flag) {
-	MakePlan2(src, dst, dir, flag).Execute()
+	NewPlan2(src, dst, dir, flag).Execute().Destroy()
 }
 
 // 3D version of FFT.
@@ -63,5 +63,5 @@ func fft3(src *Array3, dir Direction) *Array3 {
 }
 
 func fft3To(dst, src *Array3, dir Direction, flag Flag) {
-	MakePlan3(src, dst, dir, flag).Execute()
+	NewPlan3(src, dst, dir, flag).Execute().Destroy()
 }
