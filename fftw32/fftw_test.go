@@ -1,4 +1,4 @@
-package fftw
+package fftw32
 
 import (
 	"github.com/orfjackal/gospec/src/gospec"
@@ -18,10 +18,10 @@ func NewArraySpec(c gospec.Context) {
 
 // Make sure that the memory allocated by fftw is getting properly GCed
 func GCSpec(c gospec.Context) {
-	tot := 0.0
+	var tot float32 = 0.0
 	for i := 0; i < 1000; i++ {
 		d := NewArray(1000000)                  // Allocate a bunch of memory
-		d.Elems[10000] = complex(float64(i), 0) // Do something stupid with it so
+		d.Elems[10000] = complex(float32(i), 0) // Do something stupid with it so
 		tot += real(d.Elems[10000])             // hopefully it doesn't get optimized out
 	}
 }
@@ -32,7 +32,7 @@ func NewArray2Spec(c gospec.Context) {
 		n0, n1 := d100x50.Dims()
 		c.Expect(n0, gospec.Equals, 100)
 		c.Expect(n1, gospec.Equals, 50)
-		counter := 0.0
+		var counter float32 = 0.0
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				d100x50.Set(i, j, complex(counter, 0))
@@ -56,7 +56,7 @@ func NewArray3Spec(c gospec.Context) {
 		c.Expect(n0, gospec.Equals, 100)
 		c.Expect(n1, gospec.Equals, 20)
 		c.Expect(n2, gospec.Equals, 10)
-		counter := 0.0
+		var counter float32 = 0.0
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				for k := 0; k < n2; k++ {
@@ -77,31 +77,31 @@ func NewArray3Spec(c gospec.Context) {
 	})
 }
 
-func peakVerifier(s []complex128, c gospec.Context) {
-	c.Expect(real(s[0]), gospec.IsWithin(1e-9), 0.0)
-	c.Expect(imag(s[0]), gospec.IsWithin(1e-9), 0.0)
-	c.Expect(real(s[1]), gospec.IsWithin(1e-9), float64(len(s))/2)
-	c.Expect(imag(s[1]), gospec.IsWithin(1e-9), 0.0)
+func peakVerifier(s []complex64, c gospec.Context) {
+	c.Expect(real(s[0]), gospec.IsWithin(1e-6), 0.0)
+	c.Expect(imag(s[0]), gospec.IsWithin(1e-6), 0.0)
+	c.Expect(real(s[1]), gospec.IsWithin(1e-6), float32(len(s))/2)
+	c.Expect(imag(s[1]), gospec.IsWithin(1e-6), 0.0)
 	for i := 2; i < len(s)-1; i++ {
-		c.Expect(real(s[i]), gospec.IsWithin(1e-9), 0.0)
-		c.Expect(imag(s[i]), gospec.IsWithin(1e-9), 0.0)
+		c.Expect(real(s[i]), gospec.IsWithin(1e-6), 0.0)
+		c.Expect(imag(s[i]), gospec.IsWithin(1e-6), 0.0)
 	}
-	c.Expect(real(s[len(s)-1]), gospec.IsWithin(1e-9), float64(len(s))/2)
-	c.Expect(imag(s[len(s)-1]), gospec.IsWithin(1e-9), 0.0)
+	c.Expect(real(s[len(s)-1]), gospec.IsWithin(1e-6), float32(len(s))/2)
+	c.Expect(imag(s[len(s)-1]), gospec.IsWithin(1e-6), 0.0)
 }
 
 func FFTSpec(c gospec.Context) {
 	signal := NewArray(16)
 	new_in := NewArray(16)
 	for i := range signal.Elems {
-		signal.Elems[i] = complex(float64(i), float64(-i))
+		signal.Elems[i] = complex(float32(i), float32(-i))
 		new_in.Elems[i] = signal.Elems[i]
 	}
 
 	// A simple real cosine should result in transform with two spikes, one at S[1] and one at S[-1]
 	// The spikes should be real and have amplitude equal to len(S)/2 (because fftw doesn't normalize)
 	for i := range signal.Elems {
-		signal.Elems[i] = complex(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2), 0)
+		signal.Elems[i] = complex(float32(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2)), 0)
 		new_in.Elems[i] = signal.Elems[i]
 	}
 	NewPlan(signal, signal, Forward, Estimate).Execute().Destroy()
@@ -115,7 +115,7 @@ func FFT2Spec(c gospec.Context) {
 	n0, n1 := signal.Dims()
 	for i := 0; i < n0; i++ {
 		for j := 0; j < n1; j++ {
-			signal.Set(i, j, complex(float64(i+j), float64(-i-j)))
+			signal.Set(i, j, complex(float32(i+j), float32(-i-j)))
 		}
 	}
 
@@ -130,7 +130,7 @@ func FFT2Spec(c gospec.Context) {
 		for j := 0; j < n1; j++ {
 			cosx := math.Cos(float64(i) / float64(dx) * fx * math.Pi * 2)
 			cosy := math.Cos(float64(j) / float64(dy) * fy * math.Pi * 2)
-			signal.Set(i, j, complex(cosx*cosy, 0))
+			signal.Set(i, j, complex(float32(cosx*cosy), 0))
 		}
 	}
 	NewPlan2(signal, signal, Forward, Estimate).Execute().Destroy()
@@ -139,7 +139,7 @@ func FFT2Spec(c gospec.Context) {
 			for j := 0; j < n1; j++ {
 				if (i == int(fx) || i == dx-int(fx)) &&
 					(j == int(fy) || j == dy-int(fy)) {
-					c.Expect(real(signal.At(i, j)), gospec.IsWithin(1e-7), float64(dx*dy/4))
+					c.Expect(real(signal.At(i, j)), gospec.IsWithin(1e-7), float32(dx*dy/4))
 					c.Expect(imag(signal.At(i, j)), gospec.IsWithin(1e-7), 0.0)
 				} else {
 					c.Expect(real(signal.At(i, j)), gospec.IsWithin(1e-7), 0.0)
@@ -157,7 +157,7 @@ func FFT3Spec(c gospec.Context) {
 	for i := 0; i < n0; i++ {
 		for j := 0; j < n1; j++ {
 			for k := 0; k < n2; k++ {
-				signal.Set(i, j, k, complex(float64(i+j+k), float64(-i-j-k)))
+				signal.Set(i, j, k, complex(float32(i+j+k), float32(-i-j-k)))
 			}
 		}
 	}
@@ -177,7 +177,7 @@ func FFT3Spec(c gospec.Context) {
 				cosx := math.Cos(float64(i) / float64(dx) * fx * math.Pi * 2)
 				cosy := math.Cos(float64(j) / float64(dy) * fy * math.Pi * 2)
 				cosz := math.Cos(float64(k) / float64(dz) * fz * math.Pi * 2)
-				signal.Set(i, j, k, complex(cosx*cosy*cosz, 0))
+				signal.Set(i, j, k, complex(float32(cosx*cosy*cosz), 0))
 			}
 		}
 	}
@@ -189,7 +189,7 @@ func FFT3Spec(c gospec.Context) {
 					if (i == int(fx) || i == dx-int(fx)) &&
 						(j == int(fy) || j == dy-int(fy)) &&
 						(k == int(fz) || k == dz-int(fz)) {
-						c.Expect(real(signal.At(i, j, k)), gospec.IsWithin(1e-7), float64(dx*dy*dz/8))
+						c.Expect(real(signal.At(i, j, k)), gospec.IsWithin(1e-7), float32(dx*dy*dz/8))
 						c.Expect(imag(signal.At(i, j, k)), gospec.IsWithin(1e-7), 0.0)
 					} else {
 						c.Expect(real(signal.At(i, j, k)), gospec.IsWithin(1e-7), 0.0)
