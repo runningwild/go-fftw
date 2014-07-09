@@ -91,3 +91,49 @@ func NewArray3(n0, n1, n2 int) *Array3 {
 	elems := make([]complex128, n0*n1*n2)
 	return &Array3{[...]int{n0, n1, n2}, elems}
 }
+
+// N-dimensional version of Array.
+type ArrayN struct {
+	N     []int
+	Elems []complex128
+}
+
+func (a *ArrayN) Dims() (n []int) {
+	return a.N
+}
+
+func (a *ArrayN) ptr() *complex128 {
+	return &a.Elems[0]
+}
+
+func (a *ArrayN) At(i []int) complex128 {
+	return a.Elems[a.index(i)]
+}
+
+func (a *ArrayN) Set(i []int, x complex128) {
+	a.Elems[a.index(i)] = x
+}
+
+func (a *ArrayN) index(i []int) int {
+	var m int
+	for d := range a.N {
+		m = m*a.N[d] + i[d]
+	}
+	return m
+}
+
+func NewArrayN(n []int) *ArrayN {
+	var a ArrayN
+	a.Elems = make([]complex128, prod(n))
+	a.N = make([]int, len(n))
+	copy(a.N, n)
+	return &a
+}
+
+func prod(x []int) int {
+	t := 1
+	for _, xi := range x {
+		t *= xi
+	}
+	return t
+}

@@ -65,3 +65,24 @@ func fft3(src *Array3, dir Direction) *Array3 {
 func fft3To(dst, src *Array3, dir Direction, flag Flag) {
 	NewPlan3(src, dst, dir, flag).Execute().Destroy()
 }
+
+// N-D version of FFT.
+func FFTN(src *ArrayN) *ArrayN {
+	return fftN(src, Forward)
+}
+
+// N-D version of IFFT.
+func IFFTN(src *ArrayN) *ArrayN {
+	return fftN(src, Backward)
+}
+
+// Allocates memory.
+func fftN(src *ArrayN, dir Direction) *ArrayN {
+	dst := NewArrayN(src.Dims())
+	fftNTo(dst, src, dir, DefaultFlag)
+	return dst
+}
+
+func fftNTo(dst, src *ArrayN, dir Direction, flag Flag) {
+	NewPlanN(src, dst, dir, flag).Execute().Destroy()
+}
