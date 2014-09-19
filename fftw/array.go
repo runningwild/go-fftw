@@ -56,6 +56,15 @@ func (a *Array2) ptr() *complex128 {
 	return &a.Elems[0]
 }
 
+func (a *Array2) Slice() [][]complex128 {
+	x := a.Elems
+	s := make([][]complex128, a.N[0])
+	for i := range s {
+		s[i], x = x[:a.N[1]], x[a.N[1]:]
+	}
+	return s
+}
+
 func NewArray2(n0, n1 int) *Array2 {
 	elems := make([]complex128, n0*n1)
 	return &Array2{[...]int{n0, n1}, elems}
@@ -85,6 +94,18 @@ func (a *Array3) Set(i0, i1, i2 int, x complex128) {
 
 func (a *Array3) index(i0, i1, i2 int) int {
 	return i2 + a.N[2]*(i1+i0*a.N[1])
+}
+
+func (a *Array3) Slice() [][][]complex128 {
+	x := a.Elems
+	s := make([][][]complex128, a.N[0])
+	for i := range s {
+		s[i] = make([][]complex128, a.N[1])
+		for j := range s[i] {
+			s[i][j], x = x[:a.N[2]], x[a.N[2]:]
+		}
+	}
+	return s
 }
 
 func NewArray3(n0, n1, n2 int) *Array3 {
