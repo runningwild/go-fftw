@@ -1,4 +1,4 @@
 package fftw
 
-// #cgo pkg-config: fftw3
+// #cgo LDFLAGS: -lfftw3 -lm
 import "C"
