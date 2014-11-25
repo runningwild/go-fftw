@@ -1,88 +1,121 @@
 package fftw
 
-var DefaultFlag = Estimate
-
-// Computes the DFT.
-// Allocates memory in which to return the result.
+// FFT computes the Fourier transform of src.
+// It allocates memory in which to return the result.
 func FFT(src *Array) *Array {
 	dst := NewArray(src.Len())
-	fftTo(dst, src, Forward, DefaultFlag)
+	fftDir(dst, src, Forward)
 	return dst
 }
 
-// Computes the inverse DFT.
-// Allocates memory in which to return the result.
+// IFFT computes the inverse Fourier transform of src.
+// It allocates memory in which to return the result.
 func IFFT(src *Array) *Array {
 	dst := NewArray(src.Len())
-	fftTo(dst, src, Backward, DefaultFlag)
+	fftDir(dst, src, Backward)
 	return dst
 }
 
-func fftTo(dst, src *Array, dir Direction, flag Flag) {
-	NewPlan(src, dst, dir, flag).Execute().Destroy()
+// FFTTo computes the Fourier transform of src
+// and returns the result in dst.
+func FFTTo(dst, src *Array) { fftDir(dst, src, Forward) }
+
+// IFFTTo computes the inverse Fourier transform of src
+// and returns the result in dst.
+func IFFTTo(dst, src *Array) { fftDir(dst, src, Backward) }
+
+func fftDir(dst, src *Array, dir Direction) {
+	p := NewPlan(src, dst, dir, Estimate)
+	defer p.Destroy()
+	p.Execute()
 }
 
-// 2D version of FFT.
+// FFT2 computes the Fourier transform of src.
+// It allocates memory in which to return the result.
 func FFT2(src *Array2) *Array2 {
-	return fft2(src, Forward)
+	dst := NewArray2(src.Dims())
+	fft2Dir(dst, src, Forward)
+	return dst
 }
 
-// 2D version of IFFT.
+// IFFT2 computes the inverse Fourier transform of src.
+// It allocates memory in which to return the result.
 func IFFT2(src *Array2) *Array2 {
-	return fft2(src, Backward)
-}
-
-// Allocates memory.
-func fft2(src *Array2, dir Direction) *Array2 {
-	n0, n1 := src.Dims()
-	dst := NewArray2(n0, n1)
-	fft2To(dst, src, dir, DefaultFlag)
+	dst := NewArray2(src.Dims())
+	fft2Dir(dst, src, Backward)
 	return dst
 }
 
-func fft2To(dst, src *Array2, dir Direction, flag Flag) {
-	NewPlan2(src, dst, dir, flag).Execute().Destroy()
+// FFT2To computes the Fourier transform of src
+// and returns the result in dst.
+func FFT2To(dst, src *Array2) { fft2Dir(dst, src, Forward) }
+
+// IFFT2To computes the inverse Fourier transform of src
+// and returns the result in dst.
+func IFFT2To(dst, src *Array2) { fft2Dir(dst, src, Backward) }
+
+func fft2Dir(dst, src *Array2, dir Direction) {
+	p := NewPlan2(src, dst, dir, Estimate)
+	defer p.Destroy()
+	p.Execute()
 }
 
-// 3D version of FFT.
+// FFT3 computes the Fourier transform of src.
+// It allocates memory in which to return the result.
 func FFT3(src *Array3) *Array3 {
-	return fft3(src, Forward)
+	dst := NewArray3(src.Dims())
+	fft3Dir(dst, src, Forward)
+	return dst
 }
 
-// 3D version of IFFT.
+// IFFT3 computes the inverse Fourier transform of src.
+// It allocates memory in which to return the result.
 func IFFT3(src *Array3) *Array3 {
-	return fft3(src, Backward)
-}
-
-// Allocates memory.
-func fft3(src *Array3, dir Direction) *Array3 {
-	n0, n1, n2 := src.Dims()
-	dst := NewArray3(n0, n1, n2)
-	fft3To(dst, src, dir, DefaultFlag)
+	dst := NewArray3(src.Dims())
+	fft3Dir(dst, src, Backward)
 	return dst
 }
 
-func fft3To(dst, src *Array3, dir Direction, flag Flag) {
-	NewPlan3(src, dst, dir, flag).Execute().Destroy()
+// FFT3To computes the Fourier transform of src
+// and returns the result in dst.
+func FFT3To(dst, src *Array3) { fft3Dir(dst, src, Forward) }
+
+// IFFT3To computes the inverse Fourier transform of src
+// and returns the result in dst.
+func IFFT3To(dst, src *Array3) { fft3Dir(dst, src, Backward) }
+
+func fft3Dir(dst, src *Array3, dir Direction) {
+	p := NewPlan3(src, dst, dir, Estimate)
+	defer p.Destroy()
+	p.Execute()
 }
 
-// N-D version of FFT.
+// FFTN computes the Fourier transform of src.
+// It allocates memory in which to return the result.
 func FFTN(src *ArrayN) *ArrayN {
-	return fftN(src, Forward)
-}
-
-// N-D version of IFFT.
-func IFFTN(src *ArrayN) *ArrayN {
-	return fftN(src, Backward)
-}
-
-// Allocates memory.
-func fftN(src *ArrayN, dir Direction) *ArrayN {
 	dst := NewArrayN(src.Dims())
-	fftNTo(dst, src, dir, DefaultFlag)
+	fftNDir(dst, src, Forward)
 	return dst
 }
 
-func fftNTo(dst, src *ArrayN, dir Direction, flag Flag) {
-	NewPlanN(src, dst, dir, flag).Execute().Destroy()
+// IFFTN computes the inverse Fourier transform of src.
+// It allocates memory in which to return the result.
+func IFFTN(src *ArrayN) *ArrayN {
+	dst := NewArrayN(src.Dims())
+	fftNDir(dst, src, Backward)
+	return dst
+}
+
+// FFTNTo computes the Fourier transform of src
+// and returns the result in dst.
+func FFTNTo(dst, src *ArrayN) { fftNDir(dst, src, Forward) }
+
+// IFFTNTo computes the inverse Fourier transform of src
+// and returns the result in dst.
+func IFFTNTo(dst, src *ArrayN) { fftNDir(dst, src, Backward) }
+
+func fftNDir(dst, src *ArrayN, dir Direction) {
+	p := NewPlanN(src, dst, dir, Estimate)
+	defer p.Destroy()
+	p.Execute()
 }

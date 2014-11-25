@@ -8,25 +8,24 @@ Provides simple functions to compute a transform without destroying existing dat
 	// ...
 	xhat := fftw.FFT(x)
 	x = fftw.IFFT(xhat)
-Beware: Scaling is the same as in FFTW, so that computing forward and then inverse transforms scales the original input by the length of the sequence.
+Beware that scaling is the same as in FFTW, so that computing forward and then inverse transforms scales the original input by the length of the sequence.
 
-Use a Plan explicitly to recycle memory and to do in-place transforms.
-Always remember to destroy a plan.
+Use fftw.XxxTo() to do in-place operations
+	fftw.FFTTo(x, x)
+	fftw.IFFTTo(x, x)
+or re-use pre-allocated arrays:
+	fftw.FFTTo(xhat, x)
+	fftw.IFFTTo(x, xhat)
+
+It is also possible to use fftw.Plan explicitly:
 	p := fftw.NewPlan(x, x, fftw.Forward, fftw.Estimate)
 	defer p.Destroy()
 	p.Execute()
-Execute returns the plan to permit a chained call.
-	fftw.NewPlan(x, x, fftw.Forward, fftw.Estimate).Execute().Destroy()
+Beware that when using fftw.Measure instead of fftw.Estimate, the contents of the array may be overwritten by fftw.NewPlan().
+For this reason, all functions similar to fftw.FFT() and fftw.FFTTo() use fftw.Estimate.
 
-It's possible to use FFTW with memory not allocated by fftw.NewArrayX().
+It's possible to use FFTW with memory not allocated by fftw.NewArrayX():
 	x := make([]complex128, 100)
-	// ...
-
 	xhat := fftw.FFT(&fftw.Array{x})
-
-	// or in-place
-	arr := &fftw.Array{x}
-	fftw.NewPlan(arr, arr, fftw.Forward, fftw.Estimate).Execute().Destroy()
-
 */
 package fftw
