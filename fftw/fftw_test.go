@@ -1,24 +1,26 @@
 package fftw
 
 import (
-	"github.com/orfjackal/gospec/src/gospec"
 	"math"
+	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-func NewArraySpec(c gospec.Context) {
+func TestNewArray(t *testing.T) {
 	d10 := NewArray(10)
 	d100 := NewArray(100)
 	d1000 := NewArray(1000)
-	c.Specify("Allocates the appropriate memory for 1D arrays.", func() {
-		c.Expect(len(d10.Elems), gospec.Equals, 10)
-		c.Expect(len(d100.Elems), gospec.Equals, 100)
-		c.Expect(len(d1000.Elems), gospec.Equals, 1000)
+	Convey("Allocates the appropriate memory for 1D arrays.", t, func() {
+		So(len(d10.Elems), ShouldEqual, 10)
+		So(len(d100.Elems), ShouldEqual, 100)
+		So(len(d1000.Elems), ShouldEqual, 1000)
 	})
 }
 
 // Make sure that the memory allocated by fftw is getting properly GCed
-func GCSpec(c gospec.Context) {
-	tot := 0.0
+func TestGC(t *testing.T) {
+	var tot float64 = 0.0
 	for i := 0; i < 1000; i++ {
 		d := NewArray(1000000)                  // Allocate a bunch of memory
 		d.Elems[10000] = complex(float64(i), 0) // Do something stupid with it so
@@ -26,13 +28,13 @@ func GCSpec(c gospec.Context) {
 	}
 }
 
-func NewArray2Spec(c gospec.Context) {
+func TestNewArray2(t *testing.T) {
 	d100x50 := NewArray2(100, 50)
-	c.Specify("Allocates the appropriate memory for 2D arrays.", func() {
+	Convey("Allocates the appropriate memory for 2D arrays.", t, func() {
 		n0, n1 := d100x50.Dims()
-		c.Expect(n0, gospec.Equals, 100)
-		c.Expect(n1, gospec.Equals, 50)
-		counter := 0.0
+		So(n0, ShouldEqual, 100)
+		So(n1, ShouldEqual, 50)
+		var counter float64 = 0.0
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				d100x50.Set(i, j, complex(counter, 0))
@@ -42,21 +44,21 @@ func NewArray2Spec(c gospec.Context) {
 		counter = 0.0
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
-				c.Expect(real(d100x50.At(i, j)), gospec.Equals, counter)
+				So(real(d100x50.At(i, j)), ShouldEqual, counter)
 				counter += 1.0
 			}
 		}
 	})
 }
 
-func NewArray3Spec(c gospec.Context) {
+func TestNewArray3(t *testing.T) {
 	d100x20x10 := NewArray3(100, 20, 10)
-	c.Specify("Allocates the appropriate memory for 3D arrays.", func() {
+	Convey("Allocates the appropriate memory for 3D arrays.", t, func() {
 		n0, n1, n2 := d100x20x10.Dims()
-		c.Expect(n0, gospec.Equals, 100)
-		c.Expect(n1, gospec.Equals, 20)
-		c.Expect(n2, gospec.Equals, 10)
-		counter := 0.0
+		So(n0, ShouldEqual, 100)
+		So(n1, ShouldEqual, 20)
+		So(n2, ShouldEqual, 10)
+		var counter float64 = 0.0
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				for k := 0; k < n2; k++ {
@@ -69,7 +71,7 @@ func NewArray3Spec(c gospec.Context) {
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				for k := 0; k < n2; k++ {
-					c.Expect(real(d100x20x10.At(i, j, k)), gospec.Equals, counter)
+					So(real(d100x20x10.At(i, j, k)), ShouldEqual, counter)
 					counter += 1.0
 				}
 			}
@@ -77,20 +79,20 @@ func NewArray3Spec(c gospec.Context) {
 	})
 }
 
-func peakVerifier(s []complex128, c gospec.Context) {
-	c.Expect(real(s[0]), gospec.IsWithin(1e-9), 0.0)
-	c.Expect(imag(s[0]), gospec.IsWithin(1e-9), 0.0)
-	c.Expect(real(s[1]), gospec.IsWithin(1e-9), float64(len(s))/2)
-	c.Expect(imag(s[1]), gospec.IsWithin(1e-9), 0.0)
+func peakVerifier(s []complex128) {
+	So(real(s[0]), ShouldAlmostEqual, 0.0)
+	So(imag(s[0]), ShouldAlmostEqual, 0.0)
+	So(real(s[1]), ShouldAlmostEqual, float64(len(s))/2)
+	So(imag(s[1]), ShouldAlmostEqual, 0.0)
 	for i := 2; i < len(s)-1; i++ {
-		c.Expect(real(s[i]), gospec.IsWithin(1e-9), 0.0)
-		c.Expect(imag(s[i]), gospec.IsWithin(1e-9), 0.0)
+		So(real(s[i]), ShouldAlmostEqual, 0.0)
+		So(imag(s[i]), ShouldAlmostEqual, 0.0)
 	}
-	c.Expect(real(s[len(s)-1]), gospec.IsWithin(1e-9), float64(len(s))/2)
-	c.Expect(imag(s[len(s)-1]), gospec.IsWithin(1e-9), 0.0)
+	So(real(s[len(s)-1]), ShouldAlmostEqual, float64(len(s))/2)
+	So(imag(s[len(s)-1]), ShouldAlmostEqual, 0.0)
 }
 
-func FFTSpec(c gospec.Context) {
+func TestFFT(t *testing.T) {
 	signal := NewArray(16)
 	new_in := NewArray(16)
 	for i := range signal.Elems {
@@ -101,16 +103,16 @@ func FFTSpec(c gospec.Context) {
 	// A simple real cosine should result in transform with two spikes, one at S[1] and one at S[-1]
 	// The spikes should be real and have amplitude equal to len(S)/2 (because fftw doesn't normalize)
 	for i := range signal.Elems {
-		signal.Elems[i] = complex(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2), 0)
+		signal.Elems[i] = complex(float64(math.Cos(float64(i)/float64(len(signal.Elems))*math.Pi*2)), 0)
 		new_in.Elems[i] = signal.Elems[i]
 	}
 	NewPlan(signal, signal, Forward, Estimate).Execute().Destroy()
-	c.Specify("Forward 1D FFT works properly.", func() {
-		peakVerifier(signal.Elems, c)
+	Convey("Forward 1D FFT works properly.", t, func() {
+		peakVerifier(signal.Elems)
 	})
 }
 
-func FFT2Spec(c gospec.Context) {
+func TestFFT2(t *testing.T) {
 	signal := NewArray2(64, 8)
 	n0, n1 := signal.Dims()
 	for i := 0; i < n0; i++ {
@@ -130,27 +132,27 @@ func FFT2Spec(c gospec.Context) {
 		for j := 0; j < n1; j++ {
 			cosx := math.Cos(float64(i) / float64(dx) * fx * math.Pi * 2)
 			cosy := math.Cos(float64(j) / float64(dy) * fy * math.Pi * 2)
-			signal.Set(i, j, complex(cosx*cosy, 0))
+			signal.Set(i, j, complex(float64(cosx*cosy), 0))
 		}
 	}
 	NewPlan2(signal, signal, Forward, Estimate).Execute().Destroy()
-	c.Specify("Forward 2D FFT works properly.", func() {
+	Convey("Forward 2D FFT works properly.", t, func() {
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				if (i == int(fx) || i == dx-int(fx)) &&
 					(j == int(fy) || j == dy-int(fy)) {
-					c.Expect(real(signal.At(i, j)), gospec.IsWithin(1e-7), float64(dx*dy/4))
-					c.Expect(imag(signal.At(i, j)), gospec.IsWithin(1e-7), 0.0)
+					So(real(signal.At(i, j)), ShouldAlmostEqual, float64(dx*dy/4))
+					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0)
 				} else {
-					c.Expect(real(signal.At(i, j)), gospec.IsWithin(1e-7), 0.0)
-					c.Expect(imag(signal.At(i, j)), gospec.IsWithin(1e-7), 0.0)
+					So(real(signal.At(i, j)), ShouldAlmostEqual, 0.0)
+					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0)
 				}
 			}
 		}
 	})
 }
 
-func FFT3Spec(c gospec.Context) {
+func TestFFT3(t *testing.T) {
 	signal := NewArray3(32, 16, 8)
 
 	n0, n1, n2 := signal.Dims()
@@ -177,23 +179,23 @@ func FFT3Spec(c gospec.Context) {
 				cosx := math.Cos(float64(i) / float64(dx) * fx * math.Pi * 2)
 				cosy := math.Cos(float64(j) / float64(dy) * fy * math.Pi * 2)
 				cosz := math.Cos(float64(k) / float64(dz) * fz * math.Pi * 2)
-				signal.Set(i, j, k, complex(cosx*cosy*cosz, 0))
+				signal.Set(i, j, k, complex(float64(cosx*cosy*cosz), 0))
 			}
 		}
 	}
 	NewPlan3(signal, signal, Forward, Estimate).Execute().Destroy()
-	c.Specify("Forward 3D FFT works properly.", func() {
+	Convey("Forward 3D FFT works properly.", t, func() {
 		for i := 0; i < n0; i++ {
 			for j := 0; j < n1; j++ {
 				for k := 0; k < n2; k++ {
 					if (i == int(fx) || i == dx-int(fx)) &&
 						(j == int(fy) || j == dy-int(fy)) &&
 						(k == int(fz) || k == dz-int(fz)) {
-						c.Expect(real(signal.At(i, j, k)), gospec.IsWithin(1e-7), float64(dx*dy*dz/8))
-						c.Expect(imag(signal.At(i, j, k)), gospec.IsWithin(1e-7), 0.0)
+						So(real(signal.At(i, j, k)), ShouldAlmostEqual, float64(dx*dy*dz/8))
+						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
 					} else {
-						c.Expect(real(signal.At(i, j, k)), gospec.IsWithin(1e-7), 0.0)
-						c.Expect(imag(signal.At(i, j, k)), gospec.IsWithin(1e-7), 0.0)
+						So(real(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
+						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
 					}
 				}
 			}
