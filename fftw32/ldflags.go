@@ -1,4 +1,5 @@
 package fftw32
 
-// #cgo LDFLAGS: -lfftw3f -lm
+// #cgo CFLAGS: -I/usr/local/include
+// #cgo LDFLAGS: -L/usr/local/lib -lfftw3f -lm
 import "C"
