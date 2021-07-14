@@ -7,6 +7,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const epsilon = 1e-6
+
 func TestNewArray(t *testing.T) {
 	d10 := NewArray(10)
 	d100 := NewArray(100)
@@ -80,16 +82,16 @@ func TestNewArray3(t *testing.T) {
 }
 
 func peakVerifier(s []complex64) {
-	So(real(s[0]), ShouldAlmostEqual, 0.0)
-	So(imag(s[0]), ShouldAlmostEqual, 0.0)
-	So(real(s[1]), ShouldAlmostEqual, float32(len(s))/2)
-	So(imag(s[1]), ShouldAlmostEqual, 0.0)
+	So(real(s[0]), ShouldAlmostEqual, 0.0, epsilon)
+	So(imag(s[0]), ShouldAlmostEqual, 0.0, epsilon)
+	So(real(s[1]), ShouldAlmostEqual, float32(len(s))/2, epsilon)
+	So(imag(s[1]), ShouldAlmostEqual, 0.0, epsilon)
 	for i := 2; i < len(s)-1; i++ {
-		So(real(s[i]), ShouldAlmostEqual, 0.0)
-		So(imag(s[i]), ShouldAlmostEqual, 0.0)
+		So(real(s[i]), ShouldAlmostEqual, 0.0, epsilon)
+		So(imag(s[i]), ShouldAlmostEqual, 0.0, epsilon)
 	}
-	So(real(s[len(s)-1]), ShouldAlmostEqual, float32(len(s))/2)
-	So(imag(s[len(s)-1]), ShouldAlmostEqual, 0.0)
+	So(real(s[len(s)-1]), ShouldAlmostEqual, float32(len(s))/2, epsilon)
+	So(imag(s[len(s)-1]), ShouldAlmostEqual, 0.0, epsilon)
 }
 
 func TestFFT(t *testing.T) {
@@ -141,11 +143,11 @@ func TestFFT2(t *testing.T) {
 			for j := 0; j < n1; j++ {
 				if (i == int(fx) || i == dx-int(fx)) &&
 					(j == int(fy) || j == dy-int(fy)) {
-					So(real(signal.At(i, j)), ShouldAlmostEqual, float32(dx*dy/4))
-					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0)
+					So(real(signal.At(i, j)), ShouldAlmostEqual, float32(dx*dy/4), epsilon)
+					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0, epsilon)
 				} else {
-					So(real(signal.At(i, j)), ShouldAlmostEqual, 0.0)
-					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0)
+					So(real(signal.At(i, j)), ShouldAlmostEqual, 0.0, epsilon)
+					So(imag(signal.At(i, j)), ShouldAlmostEqual, 0.0, epsilon)
 				}
 			}
 		}
@@ -191,11 +193,11 @@ func TestFFT3(t *testing.T) {
 					if (i == int(fx) || i == dx-int(fx)) &&
 						(j == int(fy) || j == dy-int(fy)) &&
 						(k == int(fz) || k == dz-int(fz)) {
-						So(real(signal.At(i, j, k)), ShouldAlmostEqual, float32(dx*dy*dz/8))
-						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
+						So(real(signal.At(i, j, k)), ShouldAlmostEqual, float32(dx*dy*dz/8), epsilon)
+						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0, epsilon)
 					} else {
-						So(real(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
-						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0)
+						So(real(signal.At(i, j, k)), ShouldAlmostEqual, 0.0, epsilon)
+						So(imag(signal.At(i, j, k)), ShouldAlmostEqual, 0.0, epsilon)
 					}
 				}
 			}
