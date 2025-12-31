@@ -1,5 +1,6 @@
 package fftw32
 
+//nolint:gochecknoglobals
 var DefaultFlag = Estimate
 
 // Computes the DFT.
@@ -7,6 +8,7 @@ var DefaultFlag = Estimate
 func FFT(src *Array) *Array {
 	dst := NewArray(src.Len())
 	fftTo(dst, src, Forward, DefaultFlag)
+
 	return dst
 }
 
@@ -15,6 +17,7 @@ func FFT(src *Array) *Array {
 func IFFT(src *Array) *Array {
 	dst := NewArray(src.Len())
 	fftTo(dst, src, Backward, DefaultFlag)
+
 	return dst
 }
 
@@ -37,6 +40,7 @@ func fft2(src *Array2, dir Direction) *Array2 {
 	n0, n1 := src.Dims()
 	dst := NewArray2(n0, n1)
 	fft2To(dst, src, dir, DefaultFlag)
+
 	return dst
 }
 
@@ -59,6 +63,7 @@ func fft3(src *Array3, dir Direction) *Array3 {
 	n0, n1, n2 := src.Dims()
 	dst := NewArray3(n0, n1, n2)
 	fft3To(dst, src, dir, DefaultFlag)
+
 	return dst
 }
 

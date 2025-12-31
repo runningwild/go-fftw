@@ -5,29 +5,37 @@ package fftw
 import "testing"
 
 func TestFFT_exec(t *testing.T) {
-	var n = 32
+	t.Parallel()
+
+	n := 32
 	x := NewArray(n)
 	x = FFT(x)
-	x = IFFT(x)
+	_ = IFFT(x)
 }
 
 func TestFFT2_exec(t *testing.T) {
+	t.Parallel()
+
 	n0, n1 := 32, 16
 	x := NewArray2(n0, n1)
 	x = FFT2(x)
-	x = IFFT2(x)
+	_ = IFFT2(x)
 }
 
 func TestFFT3_exec(t *testing.T) {
+	t.Parallel()
+
 	n0, n1, n2 := 32, 16, 8
 	x := NewArray3(n0, n1, n2)
 	x = FFT3(x)
-	x = IFFT3(x)
+	_ = IFFT3(x)
 }
 
 func TestFFTN_exec(t *testing.T) {
+	t.Parallel()
+
 	n := []int{32, 16, 8, 4}
 	x := NewArrayN(n)
 	x = FFTN(x)
-	x = IFFTN(x)
+	_ = IFFTN(x)
 }

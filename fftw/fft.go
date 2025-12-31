@@ -5,6 +5,7 @@ package fftw
 func FFT(src *Array) *Array {
 	dst := NewArray(src.Len())
 	fftDir(dst, src, Forward)
+
 	return dst
 }
 
@@ -13,6 +14,7 @@ func FFT(src *Array) *Array {
 func IFFT(src *Array) *Array {
 	dst := NewArray(src.Len())
 	fftDir(dst, src, Backward)
+
 	return dst
 }
 
@@ -27,6 +29,7 @@ func IFFTTo(dst, src *Array) { fftDir(dst, src, Backward) }
 func fftDir(dst, src *Array, dir Direction) {
 	p := NewPlan(src, dst, dir, Estimate)
 	defer p.Destroy()
+
 	p.Execute()
 }
 
@@ -35,6 +38,7 @@ func fftDir(dst, src *Array, dir Direction) {
 func FFT2(src *Array2) *Array2 {
 	dst := NewArray2(src.Dims())
 	fft2Dir(dst, src, Forward)
+
 	return dst
 }
 
@@ -43,6 +47,7 @@ func FFT2(src *Array2) *Array2 {
 func IFFT2(src *Array2) *Array2 {
 	dst := NewArray2(src.Dims())
 	fft2Dir(dst, src, Backward)
+
 	return dst
 }
 
@@ -57,6 +62,7 @@ func IFFT2To(dst, src *Array2) { fft2Dir(dst, src, Backward) }
 func fft2Dir(dst, src *Array2, dir Direction) {
 	p := NewPlan2(src, dst, dir, Estimate)
 	defer p.Destroy()
+
 	p.Execute()
 }
 
@@ -65,6 +71,7 @@ func fft2Dir(dst, src *Array2, dir Direction) {
 func FFT3(src *Array3) *Array3 {
 	dst := NewArray3(src.Dims())
 	fft3Dir(dst, src, Forward)
+
 	return dst
 }
 
@@ -73,6 +80,7 @@ func FFT3(src *Array3) *Array3 {
 func IFFT3(src *Array3) *Array3 {
 	dst := NewArray3(src.Dims())
 	fft3Dir(dst, src, Backward)
+
 	return dst
 }
 
@@ -87,6 +95,7 @@ func IFFT3To(dst, src *Array3) { fft3Dir(dst, src, Backward) }
 func fft3Dir(dst, src *Array3, dir Direction) {
 	p := NewPlan3(src, dst, dir, Estimate)
 	defer p.Destroy()
+
 	p.Execute()
 }
 
@@ -95,6 +104,7 @@ func fft3Dir(dst, src *Array3, dir Direction) {
 func FFTN(src *ArrayN) *ArrayN {
 	dst := NewArrayN(src.Dims())
 	fftNDir(dst, src, Forward)
+
 	return dst
 }
 
@@ -103,6 +113,7 @@ func FFTN(src *ArrayN) *ArrayN {
 func IFFTN(src *ArrayN) *ArrayN {
 	dst := NewArrayN(src.Dims())
 	fftNDir(dst, src, Backward)
+
 	return dst
 }
 
@@ -117,5 +128,6 @@ func IFFTNTo(dst, src *ArrayN) { fftNDir(dst, src, Backward) }
 func fftNDir(dst, src *ArrayN, dir Direction) {
 	p := NewPlanN(src, dst, dir, Estimate)
 	defer p.Destroy()
+
 	p.Execute()
 }

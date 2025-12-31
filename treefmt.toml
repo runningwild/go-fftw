@@ -1,0 +1,28 @@
+# run with treefmt --allow-missing-formatter
+
+[global]
+excludes = [
+  "go.sum",
+  "go.mod",
+  "**/.gitignore",
+]
+
+### Go
+
+[formatter.gofumpt]
+command = "gofumpt"
+options = ["-w"]
+includes = ["*.go"]
+
+[formatter.gci]
+command = "gci"
+options = ["-w"]
+includes = ["*.go"]
+priority = 1  # run after gofumpt
+
+### Markdown
+
+[formatter.prettier]
+command = "prettier"
+options = ["-w"]
+includes = ["*.md"]

@@ -1,3 +1,33 @@
+# Binaries and object files
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Go test binaries and coverage
+*.test
+*.out
+/vendor/
+
+# CGO artifacts
+_obj/
+_cgo_*
 _*
 *cgo*
 
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS junk
+.DS_Store
+ehthumbs.db
+Icon?
+
+# Cache
+.gocache/
